@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: eauction-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: eauction
+      POSTGRES_PASSWORD: eauction
+      POSTGRES_DB: eauction
+    ports:
+      - "5432:5432"
+    volumes:
+      - eauction_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eauction -d eauction"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  eauction_pgdata:

@@ -1,0 +1,32 @@
+{
+  "name": "e-auction-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend for the e-auction aggregator: ingests bank e-auction listings from the BAANKNET (baanknet.com) JSON API, de-duplicates, stores in PostgreSQL and serves a REST API.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/api/server.js",
+    "dev": "node --watch src/api/server.js",
+    "migrate": "node src/db/migrate.js",
+    "scrape": "node --use-system-ca src/jobs/runScrape.js",
+    "scrape:remaining": "node --use-system-ca src/jobs/runScrapeRemaining.js",
+    "scrape:detail-test": "node --use-system-ca src/jobs/testScrape.js",
+    "scrape:all": "node --use-system-ca src/jobs/runAllSources.js",
+    "scrape:bankeauctions": "node --use-system-ca src/jobs/runAllSources.js bankeauctions",
+    "schedule": "node --use-system-ca src/jobs/scheduler.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.673.0",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "node-cron": "^3.0.3",
+    "p-limit": "^6.1.0",
+    "pg": "^8.13.1"
+  }
+}
