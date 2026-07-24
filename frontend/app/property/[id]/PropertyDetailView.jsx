@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   ChevronRight,
   FileDown,
+  Check,
 } from 'lucide-react'
 import Container from '@/components/common/Container'
 import SectionHeading from '@/components/common/SectionHeading'
@@ -37,6 +38,8 @@ const SOURCE_LABELS = {
   baanknet: 'BAANKNET',
   bankeauctions: 'BankeAuctions',
 }
+
+const FAVORITES_KEY = 'bidacres:favorites'
 
 function formatDescription(text) {
   if (!text) return []
@@ -107,6 +110,8 @@ export default function PropertyDetailView({ id }) {
   const [property, setProperty] = useState(null)
   const [similar, setSimilar] = useState([])
   const [loading, setLoading] = useState(true)
+  const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -129,6 +134,53 @@ export default function PropertyDetailView({ id }) {
       active = false
     }
   }, [id])
+
+  useEffect(() => {
+    if (!property?.id) return
+    try {
+      const list = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
+      setSaved(list.includes(String(property.id)))
+    } catch {
+      setSaved(false)
+    }
+  }, [property?.id])
+
+  const toggleSave = () => {
+    if (!property) return
+    try {
+      const list = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
+      const pid = String(property.id)
+      const next = list.includes(pid) ? list.filter((x) => x !== pid) : [...list, pid]
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next))
+      setSaved(next.includes(pid))
+    } catch {
+      /* localStorage unavailable — ignore */
+    }
+  }
+
+  const handleShare = async () => {
+    if (!property) return
+    const url = typeof window !== 'undefined' ? window.location.href : ''
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: property.title,
+          text: `${property.title} — reserve price ${formatINR(property.reservePrice)}`,
+          url,
+        })
+        return
+      } catch {
+        // user dismissed the share sheet, or it failed — fall back to copy
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard unavailable — ignore */
+    }
+  }
 
   if (loading) return <DetailSkeleton />
 
@@ -358,13 +410,22 @@ export default function PropertyDetailView({ id }) {
                 )}
 
                 <div className="mt-3 flex gap-3">
-                  <Button variant="outline" className="w-full">
-                    <Heart className="h-4 w-4" />
-                    Save
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={toggleSave}
+                    aria-pressed={saved}
+                  >
+                    <Heart className={`h-4 w-4 ${saved ? 'fill-current text-red-500' : ''}`} />
+                    {saved ? 'Saved' : 'Save'}
                   </Button>
-                  <Button variant="outline" className="w-full">
-                    <Share2 className="h-4 w-4" />
-                    Share
+                  <Button variant="outline" className="w-full" onClick={handleShare}>
+                    {copied ? (
+                      <Check className="h-4 w-4 text-success" />
+                    ) : (
+                      <Share2 className="h-4 w-4" />
+                    )}
+                    {copied ? 'Copied!' : 'Share'}
                   </Button>
                 </div>
               </div>

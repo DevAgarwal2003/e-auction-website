@@ -14,8 +14,21 @@ import {
 export const citiesFrom = (locations, state) =>
   state && locations[state] ? Object.keys(locations[state]).sort() : []
 
+// Some source records store a full comma-separated address in the locality
+// field. Keep only concise, locality-like names so the dropdown stays usable.
+const isCleanLocality = (value) => {
+  const v = String(value || '').trim()
+  if (!v) return false
+  if (v.length > 40) return false
+  if (v.includes(',')) return false
+  if (/\d{5,}/.test(v)) return false // pincodes / long digit runs => likely an address
+  return true
+}
+
 export const localitiesFrom = (locations, state, city) =>
-  state && city && locations[state] && locations[state][city] ? locations[state][city] : []
+  state && city && locations[state] && locations[state][city]
+    ? locations[state][city].filter(isCleanLocality)
+    : []
 
 /**
  * Loads filter dropdown options from the backend, falling back to the bundled
