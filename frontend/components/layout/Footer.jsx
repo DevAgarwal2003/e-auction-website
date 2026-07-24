@@ -96,7 +96,6 @@ export default function Footer() {
           <p className="text-sm text-white/50">
             © {new Date().getFullYear()} BidAcres. All rights reserved.
           </p>
-          <p className="text-xs text-white/40">Sample data shown for demonstration purposes only.</p>
         </div>
       </Container>
     </footer>

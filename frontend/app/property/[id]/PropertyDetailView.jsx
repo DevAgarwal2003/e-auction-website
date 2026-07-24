@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { api } from '@/lib/api'
 import { peekCache } from '@/lib/cache'
+import { useFavorites } from '@/hooks/useFavorites'
 import { getPropertyById, properties } from '@/data/properties'
 import { formatINR, formatINRFull, formatDate, formatTime, daysUntil } from '@/lib/format'
 
@@ -38,8 +39,6 @@ const SOURCE_LABELS = {
   baanknet: 'BAANKNET',
   bankeauctions: 'BankeAuctions',
 }
-
-const FAVORITES_KEY = 'bidacres:favorites'
 
 function formatDescription(text) {
   if (!text) return []
@@ -110,8 +109,9 @@ export default function PropertyDetailView({ id }) {
   const [property, setProperty] = useState(null)
   const [similar, setSimilar] = useState([])
   const [loading, setLoading] = useState(true)
-  const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const saved = property ? isFavorite(property.id) : false
 
   useEffect(() => {
     let active = true
@@ -135,27 +135,8 @@ export default function PropertyDetailView({ id }) {
     }
   }, [id])
 
-  useEffect(() => {
-    if (!property?.id) return
-    try {
-      const list = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
-      setSaved(list.includes(String(property.id)))
-    } catch {
-      setSaved(false)
-    }
-  }, [property?.id])
-
   const toggleSave = () => {
-    if (!property) return
-    try {
-      const list = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')
-      const pid = String(property.id)
-      const next = list.includes(pid) ? list.filter((x) => x !== pid) : [...list, pid]
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next))
-      setSaved(next.includes(pid))
-    } catch {
-      /* localStorage unavailable — ignore */
-    }
+    if (property) toggleFavorite(property.id)
   }
 
   const handleShare = async () => {

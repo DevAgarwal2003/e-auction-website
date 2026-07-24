@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, ChevronRight } from 'lucide-react'
+import { Menu, ChevronRight, Heart } from 'lucide-react'
 import Logo from './Logo'
 import Container from '@/components/common/Container'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet'
+import { useFavorites } from '@/hooks/useFavorites'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -22,6 +23,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const { count } = useFavorites()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -71,6 +73,17 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2.5 lg:flex">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/saved" aria-label="Saved properties">
+              <Heart className={cn('h-4 w-4', count > 0 && 'fill-current text-red-500')} />
+              Saved
+              {count > 0 && (
+                <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
+                  {count}
+                </span>
+              )}
+            </Link>
+          </Button>
           <Button variant="ghost" size="sm">
             Sign In
           </Button>
@@ -103,6 +116,23 @@ export default function Navbar() {
                     </Link>
                   </SheetClose>
                 ))}
+                <SheetClose asChild>
+                  <Link
+                    href="/saved"
+                    className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Heart className={cn('h-4 w-4', count > 0 && 'fill-current text-red-500')} />
+                      Saved
+                      {count > 0 && (
+                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
+                          {count}
+                        </span>
+                      )}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                </SheetClose>
               </nav>
               <div className="mt-2 flex flex-col gap-2 px-5">
                 <Button variant="outline" className="w-full">
