@@ -84,9 +84,6 @@ export default function Navbar() {
               )}
             </Link>
           </Button>
-          <Button variant="ghost" size="sm">
-            Sign In
-          </Button>
           <Button asChild size="sm" variant="secondary">
             <Link href="/auctions">Browse Auctions</Link>
           </Button>
@@ -135,9 +132,6 @@ export default function Navbar() {
                 </SheetClose>
               </nav>
               <div className="mt-2 flex flex-col gap-2 px-5">
-                <Button variant="outline" className="w-full">
-                  Sign In
-                </Button>
                 <SheetClose asChild>
                   <Button asChild variant="secondary" className="w-full">
                     <Link href="/auctions">Browse Auctions</Link>

@@ -21,6 +21,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
+  applicationName: 'BidAcres',
   title: {
     default: 'BidAcres | Bank E-Auction Property Marketplace',
     template: '%s | BidAcres',
@@ -36,8 +37,14 @@ export const metadata = {
     'NPA properties',
     'residential auction',
     'commercial auction',
+    'bank e-auction',
+    'SARFAESI auction property',
   ],
+  category: 'real estate',
   authors: [{ name: 'BidAcres' }],
+  creator: 'BidAcres',
+  publisher: 'BidAcres',
+  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
@@ -53,8 +60,55 @@ export const metadata = {
     description:
       "India's unified bank e-auction property marketplace — verified listings from leading banks.",
   },
-  icons: { icon: '/favicon.svg' },
-  robots: { index: true, follow: true },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'BidAcres',
+      url: siteUrl,
+      logo: `${siteUrl}/favicon.svg`,
+      email: 'support@bidacres.in',
+      areaServed: 'IN',
+      description:
+        "India's unified bank e-auction property marketplace, aggregating verified residential, commercial, industrial and agricultural properties auctioned by leading banks and financial institutions.",
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      name: 'BidAcres',
+      url: siteUrl,
+      publisher: { '@id': `${siteUrl}/#organization` },
+      inLanguage: 'en-IN',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${siteUrl}/auctions?keyword={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
 }
 
 export const viewport = {
@@ -67,6 +121,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
